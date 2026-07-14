@@ -1,0 +1,20 @@
+{
+  "databaseVersion": "2026.07.15-chiayi-dafa-v12",
+  "shopBrandCount": 29,
+  "knownBranchCount": 22,
+  "productCount": 666,
+  "dafaGoodTeaProductCount": 75,
+  "dafaGoodTeaBranchCount": 1,
+  "dafaGoodTeaMenuStatus": "complete",
+  "duplicateShopIds": [],
+  "duplicateBranchIds": [],
+  "duplicateProductIds": [],
+  "orphanProducts": [],
+  "orphanBranches": [],
+  "notes": [
+    "大發好茶已由 pending 改為 complete。",
+    "已加入民生南路588號門市與電話05-2867588。",
+    "已加入75項飲品、7種加料與2項優惠規則。",
+    "品項名稱依使用者提供菜單原文鍵入。"
+  ]
+}
