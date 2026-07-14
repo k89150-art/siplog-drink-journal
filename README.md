@@ -18,3 +18,7 @@ npm run dev
 - 最近品飲紀錄與摘要統計
 
 設計參考稿位於 `design/siplog-dashboard-concept.png`。
+
+## 線上使用
+
+[開啟 SipLog 喝飲誌](https://k89150-art.github.io/siplog-drink-journal/)
