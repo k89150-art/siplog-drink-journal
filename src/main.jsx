@@ -5,6 +5,7 @@ import { brands, databaseMeta, formatPrice, priceChoices, searchBrands, searchPr
 import './styles.css';
 import './styles-extra.css';
 import './data-styles.css';
+import './mobile.css';
 
 const navItems = [[Home, '首頁'], [BookOpen, '品飲日記'], [Store, '品牌門市'], [Heart, '我的最愛'], [BarChart3, '統計總覽'], [Tag, '標籤管理']];
 const loadRecords = () => {
@@ -123,22 +124,24 @@ function App() {
 function Builder(props) {
   const { brand, branch, product } = props;
   const productPrices = priceChoices(product);
-  return <section className="builder">
-    <div className="steps">{['搜尋品牌', '選擇分店與飲品', '價格與客製', '評分與備註'].map((label, index) => <div className="step" key={label}><span>{index + 1}</span><b>{label}</b>{index < 3 && <em/>}</div>)}</div>
+  const [mobileStep, setMobileStep] = useState(0);
+  const stepLabels = ['搜尋品牌', '選擇飲品', '價格客製', '評分備註'];
+  return <section className={`builder mobile-step-${mobileStep}`}>
+    <div className="steps">{stepLabels.map((label, index) => <button aria-label={`步驟 ${index + 1}：${label}`} onClick={() => setMobileStep(index)} className={`step ${mobileStep === index ? 'current' : ''}`} key={label}><span>{index + 1}</span><b>{label}</b>{index < 3 && <em/>}</button>)}</div>
     <div className="databaseStrip"><Database size={15}/><span>嘉義市飲料資料庫</span><b>v12</b><small>{databaseMeta.schemaVersion} schema</small></div>
     <div className="columns">
       <div className="panel shopPanel">
         <div className="panelTitle"><span><Store size={17}/>品牌與分店</span><small>{props.filteredBrands.length} 個品牌</small></div>
         <label className="search"><Search size={17}/><input aria-label="搜尋品牌或分店" value={props.brandQuery} onChange={event => props.setBrandQuery(event.target.value)} placeholder="品牌、分店、地址"/>{props.brandQuery && <button aria-label="清除品牌搜尋" onClick={() => props.setBrandQuery('')}><X size={14}/></button>}</label>
         <div className="chips"><div className="locationPicker"><button onClick={() => props.setDistrictOpen(value => !value)}><MapPin size={14}/>{props.district}⌄</button>{props.districtOpen && <div className="areaMenu">{props.districts.map(item => <button onClick={() => { props.setDistrict(item); props.setDistrictOpen(false); }} key={item}>{item}{props.district === item && <Check size={13}/>}</button>)}</div>}</div></div>
-        <div className="shopList brandList">{props.filteredBrands.length ? props.filteredBrands.map(item => <button onClick={() => props.selectBrand(item)} className={brand.id === item.id ? 'selected' : ''} key={item.id}><i>{item.name.slice(0, 1)}</i><div><b>{item.name}</b><small>{item.branches.length ? `${item.branches.length} 間已知分店` : '分店資料未提供'}</small><span className={`menuBadge ${statusClass(item.menuStatus)}`}>{item.menuLabel}</span></div>{brand.id === item.id && <Check size={16}/>}</button>) : <Empty title="找不到符合的品牌"/>}</div>
+        <div className="shopList brandList">{props.filteredBrands.length ? props.filteredBrands.map(item => <button onClick={() => { props.selectBrand(item); setMobileStep(1); }} className={brand.id === item.id ? 'selected' : ''} key={item.id}><i>{item.name.slice(0, 1)}</i><div><b>{item.name}</b><small>{item.branches.length ? `${item.branches.length} 間已知分店` : '分店資料未提供'}</small><span className={`menuBadge ${statusClass(item.menuStatus)}`}>{item.menuLabel}</span></div>{brand.id === item.id && <Check size={16}/>}</button>) : <Empty title="找不到符合的品牌"/>}</div>
       </div>
       <div className="panel drinkPanel">
         <div className="panelTitle"><span><CupSoda size={17}/>分店與飲品</span><small>{brand.products.length} 項</small></div>
         <label className="selectLabel"><GitBranch size={15}/><span>分店</span><select aria-label="選擇分店" value={branch?.id || ''} onChange={event => props.setBranch(brand.branches.find(item => item.id === event.target.value) || null)} disabled={!brand.branches.length}><option value="">{brand.branches.length ? '選擇分店' : '分店資料未提供'}</option>{brand.branches.map(item => <option value={item.id} key={item.id}>{item.name}｜{item.district}</option>)}</select></label>
         {branch && <div className="branchInfo"><MapPin size={13}/><span>{branch.address || `${branch.district}（地址未提供）`}</span>{branch.phone && <small>{branch.phone}</small>}</div>}
         <label className="search"><Search size={17}/><input aria-label="搜尋飲品" value={props.productQuery} onChange={event => props.setProductQuery(event.target.value)} placeholder="飲品名稱或分類"/>{props.productQuery && <button aria-label="清除飲品搜尋" onClick={() => props.setProductQuery('')}><X size={14}/></button>}</label>
-        <div className="drinkList productList">{props.filteredProducts.length ? props.filteredProducts.map(item => <button disabled={item.available === false} onClick={() => props.selectProduct(item)} className={product?.id === item.id ? 'selected' : ''} key={item.id}><span className="drinkEmoji">{item.available === false ? '暫' : '飲'}</span><div><b>{item.name}</b><small>{item.category || '未分類'} · {formatPrice(item)}</small>{item.available === false && <em>{item.notes || '目前未供應'}</em>}</div>{product?.id === item.id && <Check size={16}/>}</button>) : <Empty title={brand.menuStatus === 'pending' ? '此品牌菜單待補' : '找不到符合的飲品'}/>}</div>
+        <div className="drinkList productList">{props.filteredProducts.length ? props.filteredProducts.map(item => <button disabled={item.available === false} onClick={() => { props.selectProduct(item); setMobileStep(2); }} className={product?.id === item.id ? 'selected' : ''} key={item.id}><span className="drinkEmoji">{item.available === false ? '暫' : '飲'}</span><div><b>{item.name}</b><small>{item.category || '未分類'} · {formatPrice(item)}</small>{item.available === false && <em>{item.notes || '目前未供應'}</em>}</div>{product?.id === item.id && <Check size={16}/>}</button>) : <Empty title={brand.menuStatus === 'pending' ? '此品牌菜單待補' : '找不到符合的飲品'}/>}</div>
       </div>
       <div className="panel customPanel">
         <div className="panelTitle"><span><BadgeDollarSign size={17}/>價格與客製</span><small className={`menuBadge ${statusClass(brand.menuStatus)}`}>{brand.menuLabel}</small></div>
@@ -152,6 +155,7 @@ function Builder(props) {
       </div>
     </div>
     <div className="review"><div><p className="eyebrow">YOUR RATING</p><h2>這杯值得幾顆星？</h2><div className="stars">{[1, 2, 3, 4, 5].map(value => <button aria-label={`${value} 星`} onClick={() => props.setRating(value)} className={value <= props.rating ? 'on' : ''} key={value}>★</button>)}<b>{props.rating}.0</b></div></div><label className="note"><span>備註 <small>（選填）</small></span><textarea maxLength="200" value={props.note} onChange={event => props.setNote(event.target.value)} placeholder="記下風味、口感，或任何想法…"/><small>{props.note.length} / 200</small></label><div className="again"><span>下次還會點？</span><div>{[['yes', '♥ 會！很喜歡'], ['maybe', '☺ 可能會'], ['no', '○ 不會']].map(([value, label]) => <button className={props.again === value ? 'on' : ''} onClick={() => props.setAgain(value)} key={value}>{label}</button>)}</div><button className="save" disabled={!product || product.available === false} onClick={props.saveRecord}>{props.saved ? <><Check size={18}/>已儲存！</> : <><CupSoda size={18}/>儲存這杯</>}</button></div></div>
+    <div className="mobileStepActions"><button disabled={mobileStep === 0} onClick={() => setMobileStep(step => Math.max(0, step - 1))}>上一步</button><span>{mobileStep + 1} / 4</span><button disabled={mobileStep === 3} onClick={() => setMobileStep(step => Math.min(3, step + 1))}>{mobileStep === 2 ? '前往評分' : '下一步'}</button></div>
   </section>;
 }
 
